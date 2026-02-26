@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Maham's World ❤️</title>
+    <title>Maham's Nest ❤️</title>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
@@ -14,20 +14,16 @@
         .card { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); margin: 15px auto; max-width: 500px; border: 1px solid #ffe4e9; }
         .btn { background: white; border: 2px solid var(--pink); color: var(--dark-pink); padding: 10px 18px; border-radius: 50px; font-weight: bold; margin: 5px; cursor: pointer; transition: 0.3s; font-family: 'Quicksand'; }
         .btn-main { background: var(--pink); color: white; border: none; font-size: 1.1rem; box-shadow: 0 4px 12px rgba(255,133,162,0.4); }
-        
         #timer { font-size: 1.2rem; color: var(--dark-pink); font-weight: bold; margin: 10px 0; }
         #jar-text { font-family: 'Dancing Script'; font-size: 1.4rem; color: var(--dark-pink); margin-top: 10px; min-height: 2.5em; transition: 0.3s; }
-        
         #game-box { width: 100%; height: 380px; background: #fff; border-radius: 20px; border: 3px solid var(--pink); position: relative; overflow: hidden; margin-top: 15px; display: none; }
         #game-canvas { width: 100%; height: 100%; touch-action: none; }
         #memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 10px; display: none; }
         .memory-card { height: 65px; background: var(--pink); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: transparent; cursor: pointer; }
         .memory-card.flipped { background: white; border: 2px solid var(--pink); color: initial; }
-
         #scratch-container { position: relative; width: 280px; height: 150px; margin: 0 auto; touch-action: none; }
         #scratch-canvas { position: absolute; top: 0; left: 0; z-index: 2; border-radius: 10px; }
         .scratch-content { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #fff; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-weight: bold; font-size: 0.85rem; color: var(--dark-pink); border: 2px solid var(--pink); padding: 15px; text-align: center; box-sizing: border-box; }
-
         .mood-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
         #compliment-pop { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); background: var(--pink); color: white; padding: 25px; border-radius: 30px; font-family: 'Dancing Script'; font-size: 1.8rem; z-index: 1500; transition: 0.4s; width: 80%; text-align: center; }
         #comic-img { width: 100%; border-radius: 15px; margin-top: 10px; display: none; border: 4px solid white; max-width: 500px; }
@@ -41,7 +37,7 @@
         <div class="card">
             <p style="color: var(--dark-pink); font-weight: bold;">Hint: our first baby</p>
             <input type="password" id="passInput" placeholder="Password..." style="padding: 12px; border-radius: 15px; border: 2px solid var(--pink); width: 80%; text-align: center; outline: none;">
-            <br><br><button class="btn btn-main" onclick="checkPass()">Unlock & Play Our Song 🎵</button>
+            <br><br><button class="btn btn-main" onclick="checkPass()">Unlock my heart</button>
         </div>
     </div>
 
@@ -86,7 +82,7 @@
 
         <div class="card">
             <h3 style="color: var(--dark-pink);">Love Trivia ❓</h3>
-            <p id="trivia-q">Ready?</p>
+            <p id="trivia-q" style="font-weight:bold;">Ready to test your love?</p>
             <div id="trivia-options"></div>
             <button class="btn btn-main" id="trivia-btn" onclick="nextTrivia()">Start Quiz</button>
         </div>
@@ -116,6 +112,13 @@
             "The way you say my name makes my heart skip a beat every single time."
         ];
 
+        const triviaData = [
+            { q: "What was the first thing Omar thought when he saw Maham?", a: ["She's alright.", "Who is this?", "She's mean.", "I'm going to marry that girl."], correct: 3 },
+            { q: "What can Omar NEVER keep his eyes off of?", a: ["His phone.", "Video games.", "Maham's stunning face.", "Food."], correct: 2 },
+            { q: "Why is Maham the most perfect woman in the world?", a: ["Hardworking.", "Gorgeous.", "She's all mine.", "All of the above."], correct: 3 },
+            { q: "Who is the luckiest bird in the world?", a: ["Omar (for having Maham).", "Maham.", "Birds in the park.", "Nobody."], correct: 0 }
+        ];
+
         function checkPass() {
             if(document.getElementById('passInput').value.toLowerCase() === "octopussy") {
                 document.getElementById('login-screen').style.display = 'none';
@@ -131,13 +134,15 @@
             confetti({ particleCount: 40, spread: 60 });
         }
 
-        // Shake detection for Android
         let lastShake = 0;
         window.addEventListener('devicemotion', (e) => {
             let acc = e.accelerationIncludingGravity;
-            if (acc && (Math.abs(acc.x) + Math.abs(acc.y) + Math.abs(acc.z) > 25)) {
-                let now = Date.now();
-                if (now - lastShake > 2000) { lastShake = now; pullReason(); showCompliment(); }
+            if (acc) {
+                let speed = Math.sqrt(acc.x**2 + acc.y**2 + acc.z**2);
+                if (speed > 18) { // Increased sensitivity for better response
+                    let now = Date.now();
+                    if (now - lastShake > 1500) { lastShake = now; pullReason(); showCompliment(); }
+                }
             }
         });
 
@@ -175,11 +180,6 @@
             setTimeout(() => pop.style.transform = "translate(-50%, -50%) scale(0)", 2000);
         }
 
-        // TRIVIA
-        const triviaData = [
-            { q: "What was the first thing Omar thought when he saw Maham?", a: ["She's alright.", "Who is this?", "She's mean.", "I'm going to marry that girl."], correct: 3 },
-            { q: "Why is Maham the most perfect woman?", a: ["Hardworking.", "Gorgeous.", "She's mine.", "All of the above."], correct: 3 }
-        ];
         let currentT = 0;
         function nextTrivia() {
             const q = triviaData[currentT];
@@ -188,14 +188,15 @@
             q.a.forEach((text, i) => {
                 const b = document.createElement('button'); b.className = 'btn'; b.innerText = text;
                 b.onclick = () => {
-                    if(i === q.correct) { confetti(); currentT++; if(currentT < triviaData.length) nextTrivia(); else document.getElementById('trivia-q').innerText = "Queen! 👑"; }
+                    if(i === q.correct) { confetti(); currentT++; if(currentT < triviaData.length) nextTrivia(); else document.getElementById('trivia-q').innerText = "Trivia Queen! 👑"; }
+                    else { alert("Try again, baby!"); }
                 };
                 opt.appendChild(b);
             });
             document.getElementById('trivia-btn').style.display = 'none';
         }
 
-        // ARCADE ENGINE
+        // --- ARCADE ---
         let score = 0; let gameMode = ''; let gameActive = false; let pX = 150; let items = []; let tX, tY;
         const canvas = document.getElementById('game-canvas'); const ctx = canvas.getContext('2d');
         function startGame(mode) {
@@ -203,13 +204,12 @@
             document.getElementById('game-box').style.display = 'block';
             document.getElementById('memory-grid').style.display = 'none';
             canvas.style.display = 'block'; canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
-            if(mode==='find') { tX = Math.random()*200; tY = Math.random()*200; }
+            if(mode==='find') { tX = Math.random()*(canvas.width-40); tY = Math.random()*(canvas.height-40); }
             loop();
         }
         canvas.addEventListener('touchmove', (e) => { 
             const rect = canvas.getBoundingClientRect(); pX = e.touches[0].clientX - rect.left; e.preventDefault();
         }, {passive:false});
-
         function loop() {
             if(!gameActive) return;
             ctx.clearRect(0,0,canvas.width,canvas.height);
@@ -220,21 +220,19 @@
                 items.forEach((it, i) => { it.y+=5; ctx.fillText("❤️", it.x, it.y); if(it.y>canvas.height-60 && Math.abs(it.x-pX)<40) {items.splice(i,1); score++;} });
             }
             if(gameMode === 'find') { ctx.font="30px Arial"; ctx.fillText("🕵️", tX, tY); }
-            if(gameMode === 'kiss') { ctx.font="30px Arial"; ctx.fillText("🐦", pX-20, 200); ctx.fillText("🌸", 250, 200); if(Math.abs(pX-250)<30) {score++; confetti(); pX=0;} }
+            if(gameMode === 'kiss') { ctx.font="30px Arial"; ctx.fillText("🐦", pX-20, 200); ctx.fillText("🌸", canvas.width-60, 200); if(Math.abs(pX-(canvas.width-60))<30) {score++; confetti(); pX=0;} }
             requestAnimationFrame(loop);
         }
-
         function startMemory() {
             gameActive=false; document.getElementById('game-box').style.display='block'; canvas.style.display='none';
             const grid = document.getElementById('memory-grid'); grid.style.display='grid'; grid.innerHTML='';
             const icons = ['💍','🌹','🐱','🍭','💎','🌈','🍕','✈️'];
             [...icons, ...icons].sort(()=>Math.random()-0.5).forEach(icon => {
                 const c = document.createElement('div'); c.className = 'memory-card'; c.innerText = icon;
-                c.onclick = () => { c.classList.add('flipped'); if(document.querySelectorAll('.flipped').length%2===0) confetti(); };
+                c.onclick = () => { c.classList.add('flipped'); if(document.querySelectorAll('.flipped').length%2===0) {confetti(); score++;} };
                 grid.appendChild(c);
             });
         }
-
         function initScratch() {
             const sc = document.getElementById('scratch-canvas'); const sctx = sc.getContext('2d');
             sctx.fillStyle = '#C0C0C0'; sctx.fillRect(0,0,280,150);
