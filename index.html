@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Maham's World ❤️</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        :root { --pink: #ff85a2; --dark-pink: #d14d72; --bg: #fff0f3; }
+        body, html { margin: 0; padding: 0; width: 100%; height: 100%; font-family: 'Quicksand', sans-serif; background-color: var(--bg); touch-action: manipulation; }
+        #login-screen { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 2000; }
+        #main-content { display: none; padding: 20px; text-align: center; padding-bottom: 80px; }
+        .card { background: white; padding: 20px; border-radius: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); margin: 15px auto; max-width: 500px; border: 1px solid #ffe4e9; }
+        .btn { background: white; border: 2px solid var(--pink); color: var(--dark-pink); padding: 10px 18px; border-radius: 50px; font-weight: bold; margin: 5px; cursor: pointer; transition: 0.3s; font-family: 'Quicksand'; }
+        .btn-main { background: var(--pink); color: white; border: none; font-size: 1.1rem; box-shadow: 0 4px 12px rgba(255,133,162,0.4); }
+        
+        #game-box { width: 100%; height: 380px; background: #fff; border-radius: 20px; border: 3px solid var(--pink); position: relative; overflow: hidden; margin-top: 15px; display: none; }
+        #game-canvas { width: 100%; height: 100%; touch-action: none; }
+        
+        #memory-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 10px; display: none; }
+        .memory-card { height: 65px; background: var(--pink); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; color: transparent; cursor: pointer; }
+        .memory-card.flipped { background: white; border: 2px solid var(--pink); color: initial; }
+
+        #scratch-container { position: relative; width: 280px; height: 150px; margin: 0 auto; touch-action: none; }
+        #scratch-canvas { position: absolute; top: 0; left: 0; z-index: 2; border-radius: 10px; }
+        .scratch-content { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #fff; display: flex; align-items: center; justify-content: center; border-radius: 10px; font-weight: bold; font-size: 0.9rem; color: var(--dark-pink); border: 2px solid var(--pink); padding: 15px; text-align: center; box-sizing: border-box; }
+
+        .mood-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        #compliment-pop { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); background: var(--pink); color: white; padding: 25px; border-radius: 30px; font-family: 'Dancing Script'; font-size: 1.8rem; z-index: 1500; transition: 0.4s; width: 80%; text-align: center; }
+        #comic-img { width: 100%; border-radius: 15px; margin-top: 10px; display: none; border: 4px solid white; max-width: 500px; }
+    </style>
+</head>
+<body>
+
+    <div id="login-screen">
+        <div class="card">
+            <p style="color: var(--dark-pink); font-weight: bold;">Hint: our first baby</p>
+            <input type="password" id="passInput" placeholder="Password..." style="padding: 12px; border-radius: 15px; border: 2px solid var(--pink); width: 80%; text-align: center; outline: none;">
+            <br><br><button class="btn btn-main" onclick="checkPass()">Unlock</button>
+        </div>
+    </div>
+
+    <div id="main-content">
+        <h1 style="font-family: 'Dancing Script'; color: var(--dark-pink); font-size: 2.5rem;">Maham's Nest ❤️</h1>
+        
+        <button class="btn" onclick="toggleComic()">📖 Our Story</button>
+        <center><img id="comic-img" src="comic.png"></center>
+
+        <div class="card">
+            <h3 style="color: var(--dark-pink);">Arcade 🎮</h3>
+            <button class="btn" onclick="startGame('hearts')">🐶 Catcher</button>
+            <button class="btn" onclick="startMemory()">🧩 Puzzle</button>
+            <button class="btn" onclick="startGame('kiss')">🐦 Kissing Birds</button>
+            <button class="btn" onclick="startGame('find')">🕵️ Find Omar</button>
+            
+            <div id="game-box">
+                <canvas id="game-canvas"></canvas>
+                <div id="memory-grid"></div>
+                <div id="game-ui" style="position:absolute; top:10px; left:10px; font-weight:bold; color:var(--dark-pink);">Score: 0</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="color: var(--dark-pink);">Love Trivia ❓</h3>
+            <p id="trivia-q" style="font-weight:bold;">Ready to start?</p>
+            <div id="trivia-options"></div>
+            <button class="btn btn-main" id="trivia-btn" onclick="nextTrivia()">Start Quiz</button>
+        </div>
+
+        <div class="card">
+            <h3 style="color: var(--dark-pink);">Scratch-Off 🎫</h3>
+            <div id="scratch-container">
+                <div class="scratch-content">HIIIIII im always praying and thinking about u mahiii ur always in my heart</div>
+                <canvas id="scratch-canvas" width="280" height="150"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="color: var(--dark-pink);">How are you feeling? 💭</h3>
+            <div class="mood-grid">
+                <button class="btn" onclick="moodMsg('sad')">😢 Sad</button>
+                <button class="btn" onclick="moodMsg('tired')">😴 Tired</button>
+                <button class="btn" onclick="moodMsg('sexy')">😏 Sexy</button>
+                <button class="btn" onclick="moodMsg('happy')">🥰 Happy</button>
+            </div>
+        </div>
+
+        <button class="btn btn-main" style="width: 90%; padding: 20px;" onclick="showCompliment()">💖 Compliment Me 💖</button>
+    </div>
+
+    <div id="compliment-pop"></div>
+
+    <script>
+        function checkPass() {
+            if(document.getElementById('passInput').value.toLowerCase() === "octopussy") {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('main-content').style.display = 'block';
+                initScratch();
+            } else { alert("Wrong password, baby!"); }
+        }
+
+        function toggleComic() {
+            const img = document.getElementById('comic-img');
+            img.style.display = img.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function moodMsg(type) {
+            const msgs = {
+                sad: "Come here baby, let me hold you. Everything is okay because I'm right here.",
+                tired: "You work so hard for us. Rest your head, my hardworking queen.",
+                sexy: "Oh stop it... you know I can't keep my hands off you when you're like this.",
+                happy: "Your smile is my favorite thing in the whole world. Stay shining!"
+            };
+            alert(msgs[type]);
+            confetti();
+        }
+
+        function showCompliment() {
+            const comps = ["my brown sugar", "sexy mami", "hardworking baby", "most perfect woman", "ur ALL mine", "can't keep my eyes off u", "stunningly pretty"];
+            const pop = document.getElementById('compliment-pop');
+            pop.innerText = comps[Math.floor(Math.random() * comps.length)];
+            pop.style.transform = "translate(-50%, -50%) scale(1)";
+            confetti({ particleCount: 100 });
+            setTimeout(() => pop.style.transform = "translate(-50%, -50%) scale(0)", 2500);
+        }
+
+        const triviaData = [
+            { q: "What was the first thing Omar thought when he saw Maham?", a: ["She's alright.", "Who is this?", "She's mean.", "I'm going to marry that girl."], correct: 3 },
+            { q: "What can Omar NEVER keep his eyes off of?", a: ["His phone.", "Video games.", "Maham's stunning face.", "Food."], correct: 2 },
+            { q: "Why is Maham the most perfect woman in the world?", a: ["Hardworking.", "Gorgeous.", "She's all mine.", "All of the above."], correct: 3 },
+            { q: "Where is our next 'nest' going to be?", a: ["Paris", "Cozy house", "Island", "Wherever she goes is the right way"], correct: "ANY" },
+            { q: "Who is the luckiest bird in the world?", a: ["Omar (for having Maham).", "Maham.", "Birds in the park.", "Nobody."], correct: 0 }
+        ];
+        let currentT = 0;
+        function nextTrivia() {
+            const q = triviaData[currentT];
+            document.getElementById('trivia-q').innerText = q.q;
+            const opt = document.getElementById('trivia-options');
+            opt.innerHTML = '';
+            q.a.forEach((text, i) => {
+                const b = document.createElement('button'); b.className = 'btn'; b.innerText = text;
+                b.onclick = () => {
+                    if(q.correct === "ANY" || i === q.correct) {
+                        confetti(); currentT++;
+                        if(currentT < triviaData.length) nextTrivia();
+                        else document.getElementById('trivia-q').innerText = "Trivia King/Queen! 👑";
+                    } else { alert("Try again, babe!"); }
+                };
+                opt.appendChild(b);
+            });
+            document.getElementById('trivia-btn').style.display = 'none';
+        }
+
+        function startMemory() {
+            gameActive = false; 
+            document.getElementById('game-box').style.display = 'block';
+            document.getElementById('game-canvas').style.display = 'none';
+            const grid = document.getElementById('memory-grid');
+            grid.style.display = 'grid'; grid.innerHTML = '';
+            const icons = ['💍','🌹','🐱','🍭','💎','🌈','🍕','✈️'];
+            const deck = [...icons, ...icons].sort(() => Math.random() - 0.5);
+            let flipped = [];
+            deck.forEach(icon => {
+                const c = document.createElement('div'); c.className = 'memory-card'; c.innerText = icon;
+                c.onclick = () => {
+                    if(flipped.length < 2 && !c.classList.contains('flipped')) {
+                        c.classList.add('flipped'); flipped.push(c);
+                        if(flipped.length === 2) {
+                            if(flipped[0].innerText === flipped[1].innerText) { flipped = []; confetti(); score++; }
+                            else { setTimeout(() => { flipped.forEach(x => x.classList.remove('flipped')); flipped = []; }, 800); }
+                        }
+                    }
+                };
+                grid.appendChild(c);
+            });
+        }
+
+        let score = 0; let gameMode = ''; let items = []; let pX = 150; let pY = 300; let gameActive = false;
+        let tX = 0; let tY = 0; let obs = []; let decoys = [];
+        const canvas = document.getElementById('game-canvas'); const ctx = canvas.getContext('2d');
+
+        function startGame(mode) {
+            gameMode = mode; score = 0; items = []; obs = []; decoys = []; gameActive = true;
+            document.getElementById('game-box').style.display = 'block';
+            document.getElementById('memory-grid').style.display = 'none';
+            canvas.style.display = 'block';
+            canvas.width = canvas.offsetWidth; canvas.height = canvas.offsetHeight;
+            if(mode === 'find') { tX = Math.random()*200+50; tY = Math.random()*200+50; for(let i=0; i<15; i++) decoys.push({x:Math.random()*canvas.width, y:Math.random()*canvas.height}); }
+            if(mode === 'kiss') { tX = canvas.width - 60; tY = 60; for(let i=0; i<3; i++) obs.push({x: 100+i*80, y: 0, s: 2+i}); }
+            loop();
+        }
+
+        const handle = (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const cx = (e.touches ? e.touches[0].clientX : e.clientX) - rect.left;
+            const cy = (e.touches ? e.touches[0].clientY : e.clientY) - rect.top;
+            if(gameMode === 'find' && (e.type === 'touchstart' || e.type === 'mousedown')) {
+                if(Math.hypot(cx - tX, cy - tY) < 40) { score++; confetti(); tX = Math.random()*canvas.width; tY = Math.random()*canvas.height; }
+            }
+            pX = cx; pY = cy;
+        };
+        canvas.addEventListener('mousemove', handle);
+        canvas.addEventListener('touchmove', (e) => { handle(e); e.preventDefault(); }, {passive:false});
+        canvas.addEventListener('mousedown', handle);
+
+        function loop() {
+            if(!gameActive) return;
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            document.getElementById('game-ui').innerText = "Score: " + score;
+            ctx.font = "30px Arial";
+            if(gameMode === 'hearts') {
+                ctx.fillText("🐶", pX-20, canvas.height-20);
+                if(Math.random()<0.04) items.push({x:Math.random()*canvas.width, y:0, s:4});
+                items.forEach((it, i) => { it.y+=it.s; ctx.fillText("❤️", it.x, it.y); if(it.y > canvas.height-60 && Math.abs(it.x-pX)<40) { items.splice(i,1); score++; } });
+            }
+            if(gameMode === 'find') { ctx.font="20px Arial"; decoys.forEach(d=>ctx.fillText("🐥", d.x, d.y)); ctx.font="35px Arial"; ctx.fillText("🐦", tX, tY); }
+            if(gameMode === 'kiss') {
+                ctx.fillText("🌸", tX, tY); ctx.fillText("🐦", pX-20, pY);
+                obs.forEach(o => { o.y+=o.s; if(o.y>canvas.height) o.y=0; ctx.fillText("☁️", o.x, o.y); if(Math.hypot(pX-o.x, pY-o.y)<35) { pX=50; score=Math.max(0, score-1); } });
+                if(Math.hypot(pX-tX, pY-tY)<40) { score++; confetti(); pX=50; }
+            }
+            requestAnimationFrame(loop);
+        }
+
+        function initScratch() {
+            const sc = document.getElementById('scratch-canvas'); const sctx = sc.getContext('2d');
+            sctx.fillStyle = '#C0C0C0'; sctx.fillRect(0,0,280,150);
+            sctx.fillStyle = '#666'; sctx.font = 'bold 16px Quicksand'; sctx.fillText('SCRATCH TO REVEAL', 60, 85);
+            let down = false;
+            const scr = (e) => {
+                if(!down) return; const r = sc.getBoundingClientRect();
+                const x = (e.clientX || e.touches[0].clientX) - r.left;
+                const y = (e.clientY || e.touches[0].clientY) - r.top;
+                sctx.globalCompositeOperation = 'destination-out';
+                sctx.beginPath(); sctx.arc(x,y,15,0,6.28); sctx.fill();
+            };
+            sc.addEventListener('mousedown', () => down=true); sc.addEventListener('mouseup', () => down=false);
+            sc.addEventListener('mousemove', scr); sc.addEventListener('touchstart', (e) => { down=true; e.preventDefault(); });
+            sc.addEventListener('touchend', () => down=false); sc.addEventListener('touchmove', (e) => { scr(e); e.preventDefault(); });
+        }
+    </script>
+</body>
+</html>
